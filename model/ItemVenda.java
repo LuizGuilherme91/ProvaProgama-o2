@@ -3,15 +3,19 @@ public class ItemVenda {
     private double quantidade;
     private double valor_unitario;
     private double subtotal;
+    private Venda venda; // Associação com Venda
+    private Produto produto; // Associação com Produto
 
     public ItemVenda() {
     }
 
-    public ItemVenda(int id, double quantidade, double valor_unitario, double subtotal) {
+    public ItemVenda(int id, double quantidade, double valor_unitario, double subtotal, Venda venda, Produto produto) {
         this.id = id;
         this.quantidade = quantidade;
         this.valor_unitario = valor_unitario;
         this.subtotal = subtotal;
+        this.venda = venda;
+        this.produto = produto;
     }
 
     public int getId() {
@@ -41,6 +45,19 @@ public class ItemVenda {
     public void setSubtotal(double subtotal) {
         this.subtotal = subtotal;
     }
-    
+
+    public Venda getVenda() {
+        return venda;
+    }
+    public void setVenda(Venda venda) {
+        this.venda = venda;
+    }
+
+    public Produto getProduto() {
+        return produto;
+    }
+    public void setProduto(Produto produto) {
+        this.produto = produto;
+    }
 
 }
