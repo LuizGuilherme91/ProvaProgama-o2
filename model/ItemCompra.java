@@ -1,15 +1,15 @@
-public class ClasseGenerica {
+public class ItemCompra extends ClasseGenerica {
     private int id;
-    private String nome;
+    private double quantidade;
     private double valor_unitario;
     private double subtotal;
 
-    public ClasseGenerica() {
+    public ItemCompra() {
     }
 
-    public ClasseGenerica(int id, String nome, double valor_unitario, double subtotal) {
+    public ItemCompra(int id, double quantidade, double valor_unitario, double subtotal) {
         this.id = id;
-        this.nome = nome;
+        this.quantidade = quantidade;
         this.valor_unitario = valor_unitario;
         this.subtotal = subtotal;
     }
@@ -21,11 +21,11 @@ public class ClasseGenerica {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
+    public double getQuantidade() {
+        return quantidade;
     }
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setQuantidade(double quantidade) {
+        this.quantidade = quantidade;
     }
 
     public double getValor_unitario() {
@@ -41,6 +41,6 @@ public class ClasseGenerica {
     public void setSubtotal(double subtotal) {
         this.subtotal = subtotal;
     }
-
+    
 
 }
