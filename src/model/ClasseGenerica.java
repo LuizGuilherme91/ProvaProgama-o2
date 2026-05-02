@@ -1,3 +1,5 @@
+package model;
+
 public class ClasseGenerica {
     private int id;
     private String nome;

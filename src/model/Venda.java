@@ -1,3 +1,5 @@
+package model;
+
 import java.sql.Date;
 import java.util.List;
 
@@ -12,10 +14,12 @@ public class Venda extends ClasseGenerica{
     public Venda() {
     }
 
-    public Venda(int id, Date data_venda, double valor_total) {
+    public Venda(int id, Date data_venda, double valor_total, Cliente cliente, List<ItemVenda> itens) {
         this.id = id;
         this.data_venda = data_venda;
         this.valor_total = valor_total;
+        this.cliente = cliente;
+        this.itens = itens;
     }
 
     public int getId() {

@@ -1,17 +1,24 @@
+package model;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Fornecedor extends ClasseGenerica {
     private int id;
     private String nome_fantasia;
     private String razao_social;
     private String cnpj;
+    private List<Produto> produtosFornecidos = new ArrayList<>();
 
     public Fornecedor() {
     }
 
-    public Fornecedor(int id, String nome_fantasia, String razao_social, String cnpj) {
+    public Fornecedor(int id, String nome_fantasia, String razao_social, String cnpj, List<Produto> produtosFornecidos) {
         this.id = id;
         this.nome_fantasia = nome_fantasia;
         this.razao_social = razao_social;
         this.cnpj = cnpj;
+        this.produtosFornecidos = produtosFornecidos;
     }
 
     public int getId() {
@@ -41,6 +48,9 @@ public class Fornecedor extends ClasseGenerica {
     public void setCnpj(String cnpj) {
         this.cnpj = cnpj;
     }
+
+    public List<Produto> getProdutosFornecidos() {return produtosFornecidos;}
+    public void setProdutosFornecidos(List<Produto> produtosFornecidos) {this.produtosFornecidos = produtosFornecidos;}
 
 
 

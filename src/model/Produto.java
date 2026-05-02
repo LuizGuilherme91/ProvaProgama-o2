@@ -1,3 +1,8 @@
+package model;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Produto extends ClasseGenerica{
     private int id;
     private String nome;
@@ -5,17 +10,21 @@ public class Produto extends ClasseGenerica{
     private double qtde_estoque;
     private double valor_ultima_compra;
     private double valor_ultima_venda;
+    private Categoria categoria;
+    private List<Fornecedor> fornecedores = new ArrayList<>();
 
     public Produto() {
     }
 
-    public Produto(int id, String nome, double preco_medio, double qtde_estoque, double valor_ultima_compra, double valor_ultima_venda) {
+    public Produto(int id, String nome, double preco_medio, double qtde_estoque, double valor_ultima_compra, double valor_ultima_venda,  Categoria categoria, List<Fornecedor> fornecedores) {
         this.id = id;
         this.nome = nome;
         this.preco_medio = preco_medio;
         this.qtde_estoque = qtde_estoque;
         this.valor_ultima_compra = valor_ultima_compra;
         this.valor_ultima_venda = valor_ultima_venda;
+        this.categoria = categoria;
+        this.fornecedores = fornecedores;
     }
 
     public int getId() {
@@ -59,5 +68,11 @@ public class Produto extends ClasseGenerica{
     public void setValor_ultima_venda(double valor_ultima_venda) {
         this.valor_ultima_venda = valor_ultima_venda;
     }
+
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+
+    public  List<Fornecedor> getFornecedores() { return fornecedores; }
+    public void setFornecedores(List<Fornecedor> fornecedores) {}
 
 }

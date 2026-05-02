@@ -1,3 +1,7 @@
+package dao;
+
+import model.Categoria;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,7 +21,7 @@ public class CategoriaDAO {
         try (Connection conn = ConexaoBanco.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Categoria só precisa do nome para ser inserida, o ID é automático
+            // model.Categoria só precisa do nome para ser inserida, o ID é automático
             stmt.setString(1, categoria.getNome());
 
             int linhasAfetadas = stmt.executeUpdate();

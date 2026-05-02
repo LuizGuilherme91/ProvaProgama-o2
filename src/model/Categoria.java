@@ -1,3 +1,5 @@
+package model;
+
 public class Categoria extends ClasseGenerica {
     private int id;
     private String nome;

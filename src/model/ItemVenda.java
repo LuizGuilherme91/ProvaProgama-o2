@@ -1,17 +1,23 @@
-public class ItemCompra extends ClasseGenerica {
+package model;
+
+public class ItemVenda {
     private int id;
     private double quantidade;
     private double valor_unitario;
     private double subtotal;
+    private Venda venda; // Associação com model.Venda
+    private Produto produto; // Associação com model.Produto
 
-    public ItemCompra() {
+    public ItemVenda() {
     }
 
-    public ItemCompra(int id, double quantidade, double valor_unitario, double subtotal) {
+    public ItemVenda(int id, double quantidade, double valor_unitario, double subtotal, Venda venda, Produto produto) {
         this.id = id;
         this.quantidade = quantidade;
         this.valor_unitario = valor_unitario;
         this.subtotal = subtotal;
+        this.venda = venda;
+        this.produto = produto;
     }
 
     public int getId() {
@@ -41,6 +47,19 @@ public class ItemCompra extends ClasseGenerica {
     public void setSubtotal(double subtotal) {
         this.subtotal = subtotal;
     }
-    
+
+    public Venda getVenda() {
+        return venda;
+    }
+    public void setVenda(Venda venda) {
+        this.venda = venda;
+    }
+
+    public Produto getProduto() {
+        return produto;
+    }
+    public void setProduto(Produto produto) {
+        this.produto = produto;
+    }
 
 }
