@@ -64,7 +64,7 @@ public class ProdutoView {
         try {
             int idCategoria = Integer.parseInt(idCatStr);
 
-            // Estoque e preços sempre começam zerados no cadastro inicial
+            // Atributos: nome, preco_medio, qtde_estoque, valor_ultima_compra, valor_ultima_venda, idCategoria
             boolean sucesso = produtoCtrl.salvar(nome, 0.0, 0.0, 0.0, 0.0, idCategoria);
 
             if (sucesso) {
@@ -90,9 +90,10 @@ public class ProdutoView {
                 String dados = "Produto Encontrado:\n\n" +
                         "ID: " + p.getId() + "\n" +
                         "Nome: " + p.getNome() + "\n" +
-                        "Estoque Atual: " + p.getQtdeEstoque() + "\n" +
-                        "Preço Médio (Custo): R$ " + p.getPrecoMedio() + "\n" +
-                        "Valor Última Venda: R$ " + p.getValorUltimaVenda();
+                        "Estoque Atual: " + p.getQtde_estoque() + "\n" +
+                        "Preço Médio: R$ " + p.getPreco_medio() + "\n" +
+                        "Valor Últ. Compra: R$ " + p.getValor_ultima_compra() + "\n" +
+                        "Valor Últ. Venda: R$ " + p.getValor_ultima_venda();
                 JOptionPane.showMessageDialog(null, dados, "Pesquisa", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(null, "Produto não encontrado para o ID: " + id, "Aviso", JOptionPane.WARNING_MESSAGE);
@@ -122,8 +123,16 @@ public class ProdutoView {
 
                 int novaCategoria = Integer.parseInt(idCatStr);
 
-                // Passamos o novo nome e nova categoria, mas mantemos os preços e estoque que já estavam no objeto pesquisado
-                boolean sucesso = produtoCtrl.alterar(id, novoNome, p.getPrecoCusto(), p.getQtdeEstoque(), p.getPrecoMedio(), p.getValorUltimaVenda(), novaCategoria);
+                // Mantendo os valores financeiros/estoque exatos como estão no banco, alterando só nome e categoria
+                boolean sucesso = produtoCtrl.alterar(
+                        id,
+                        novoNome,
+                        p.getPreco_medio(),
+                        p.getQtde_estoque(),
+                        p.getValor_ultima_compra(),
+                        p.getValor_ultima_venda(),
+                        novaCategoria
+                );
 
                 if (sucesso) {
                     JOptionPane.showMessageDialog(null, "Produto alterado com sucesso!");
