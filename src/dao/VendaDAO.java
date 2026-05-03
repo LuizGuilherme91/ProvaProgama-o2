@@ -10,13 +10,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-// Lembre-se de importar suas classes da Model (model.Venda, model.ItemVenda, model.Cliente, model.Produto, etc.)
-// usando o atalho Ctrl + .
-
 public class VendaDAO {
 
     // ==========================================
-    // 1. SALVAR (CREATE) - COM REGRAS DE NEGÓCIO
+    // 1. SALVAR (CREATE)
     // ==========================================
     public boolean salvar(Venda venda) {
         String sqlVenda = "INSERT INTO Venda (data_venda, valor_total, id_cliente) VALUES (?, ?, ?)";
@@ -28,23 +25,12 @@ public class VendaDAO {
 
         try {
             conn = ConexaoBanco.getConnection();
-            conn.setAutoCommit(false); // Inicia a transação (trava para fazer tudo junto)
+            conn.setAutoCommit(false);
 
-            // ------------------------------------------------------------------
-            // REGRA DE NEGÓCIO: RNF004 (Máximo de 3 vendas por CPF no mês)
-            // ------------------------------------------------------------------
-            if (!podeRealizarVenda(conn, venda.getCliente().getId(), venda.getData_venda().toString())) {
-                System.err.println("Operação abortada: model.Cliente excedeu o limite de 3 vendas no mês atual. (RNF004)");
-                return false; 
-            }
-
-            // ------------------------------------------------------------------
-            // PASSO 1: Salvar a model.Venda e recuperar o ID gerado
-            // ------------------------------------------------------------------
+            // PASSO 1: Salvar a Venda e recuperar o ID gerado
             int idVendaGerado = 0;
             try (PreparedStatement stmtVenda = conn.prepareStatement(sqlVenda, Statement.RETURN_GENERATED_KEYS)) {
-                // Considerando que dataVenda está como String no formato "YYYY-MM-DD"
-                stmtVenda.setDate(1, venda.getData_venda()); 
+                stmtVenda.setDate(1, venda.getData_venda());
                 stmtVenda.setDouble(2, venda.getValor_total());
                 stmtVenda.setInt(3, venda.getCliente().getId());
                 stmtVenda.executeUpdate();
@@ -55,38 +41,34 @@ public class VendaDAO {
                 }
             }
 
-            // ------------------------------------------------------------------
             // PASSO 2: Salvar os Itens e Atualizar Produtos
-            // ------------------------------------------------------------------
             try (PreparedStatement stmtItem = conn.prepareStatement(sqlItem);
-                PreparedStatement stmtVerificaEstoque = conn.prepareStatement(sqlVerificaEstoque);
-                PreparedStatement stmtAtualizaProduto = conn.prepareStatement(sqlAtualizaProduto)) {
+                 PreparedStatement stmtVerificaEstoque = conn.prepareStatement(sqlVerificaEstoque);
+                 PreparedStatement stmtAtualizaProduto = conn.prepareStatement(sqlAtualizaProduto)) {
 
                 for (ItemVenda item : venda.getItens()) {
-                    
-                    // Verifica estoque atual do produto
+
                     stmtVerificaEstoque.setInt(1, item.getProduto().getId());
                     ResultSet rsEstoque = stmtVerificaEstoque.executeQuery();
-                    
+
                     if (rsEstoque.next()) {
                         double estoqueAtual = rsEstoque.getDouble("qtde_estoque");
-                        
-                        // REGRA DE NEGÓCIO: RNF003 (Abortar se estoque inferior a 1 ou insuficiente)
+
+                        // RNF003
                         if (estoqueAtual < 1 || estoqueAtual < item.getQuantidade()) {
                             System.err.println("Operação abortada: Estoque insuficiente para o produto ID " + item.getProduto().getId() + ". (RNF003)");
-                            conn.rollback(); // Cancela tudo
+                            conn.rollback();
                             return false;
                         }
                     }
 
-                    // Insere o model.ItemVenda
                     stmtItem.setInt(1, idVendaGerado);
                     stmtItem.setInt(2, item.getProduto().getId());
                     stmtItem.setDouble(3, item.getQuantidade());
                     stmtItem.setDouble(4, item.getValor_unitario());
                     stmtItem.executeUpdate();
 
-                    // REGRA DE NEGÓCIO: RNF001 e RNF005 (Subtrai estoque e atualiza último valor)
+                    // RNF001 e RNF005
                     stmtAtualizaProduto.setDouble(1, item.getQuantidade());
                     stmtAtualizaProduto.setDouble(2, item.getValor_unitario());
                     stmtAtualizaProduto.setInt(3, item.getProduto().getId());
@@ -94,12 +76,12 @@ public class VendaDAO {
                 }
             }
 
-            conn.commit(); // Confirma todas as operações no banco!
+            conn.commit();
             return true;
 
         } catch (SQLException e) {
             try {
-                if (conn != null) conn.rollback(); // Se deu erro de SQL, desfaz tudo
+                if (conn != null) conn.rollback();
             } catch (SQLException ex) {
                 System.err.println("Erro ao fazer rollback: " + ex.getMessage());
             }
@@ -118,37 +100,13 @@ public class VendaDAO {
     }
 
     // ==========================================
-    // MÉTODO AUXILIAR PARA RNF004
-    // ==========================================
-    private boolean podeRealizarVenda(Connection conn, int idCliente, String dataVenda) throws SQLException {
-        // Pega o Ano e Mês da venda (Ex: extrai "2026-05" de "2026-05-01")
-        String anoMesVenda = dataVenda.substring(0, 7); 
-
-        String sql = "SELECT COUNT(*) AS total_vendas FROM Venda WHERE id_cliente = ? AND strftime('%Y-%m', data_venda) = ?";
-        
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, idCliente);
-            stmt.setString(2, anoMesVenda);
-            
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                int totalVendas = rs.getInt("total_vendas");
-                return totalVendas < 3; // Retorna true se fez menos de 3 vendas
-            }
-        }
-        return true;
-    }
-
-    // ==========================================
     // 2. ALTERAR (UPDATE)
     // ==========================================
     public boolean alterar(Venda venda) {
-        // Alterar vendas completas é bem complexo (envolve repor estoque antigo e retirar o novo).
-        // Aqui fazemos o básico da capa da model.Venda, como o diagrama sugere de forma simples.
         String sql = "UPDATE Venda SET data_venda = ?, valor_total = ?, id_cliente = ? WHERE id = ?";
-        
+
         try (Connection conn = ConexaoBanco.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setDate(1, venda.getData_venda());
             stmt.setDouble(2, venda.getValor_total());
@@ -168,19 +126,17 @@ public class VendaDAO {
     public boolean excluir(int idVenda) {
         String sqlItens = "DELETE FROM ItemVenda WHERE id_venda = ?";
         String sqlVenda = "DELETE FROM Venda WHERE id = ?";
-        
+
         Connection conn = null;
         try {
             conn = ConexaoBanco.getConnection();
-            conn.setAutoCommit(false); // Transação pois exclui de 2 tabelas
+            conn.setAutoCommit(false);
 
-            // Primeiro deleta os itens (por causa da chave estrangeira)
             try (PreparedStatement stmtItens = conn.prepareStatement(sqlItens)) {
                 stmtItens.setInt(1, idVenda);
                 stmtItens.executeUpdate();
             }
 
-            // Depois deleta a venda
             try (PreparedStatement stmtVenda = conn.prepareStatement(sqlVenda)) {
                 stmtVenda.setInt(1, idVenda);
                 stmtVenda.executeUpdate();
@@ -208,11 +164,14 @@ public class VendaDAO {
     // ==========================================
     // 4. PESQUISAR (READ)
     // ==========================================
+    // ==========================================
+    // 4. PESQUISAR (READ)
+    // ==========================================
     public Venda pesquisar(int id) {
         String sql = "SELECT * FROM Venda WHERE id = ?";
-        
+
         try (Connection conn = ConexaoBanco.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -220,21 +179,76 @@ public class VendaDAO {
             if (rs.next()) {
                 Venda v = new Venda();
                 v.setId(rs.getInt("id"));
-                v.setData_venda(rs.getDate("data_venda"));
+
+                // Tratamento especial para o SQLite não surtar com as datas
+                String dataStr = rs.getString("data_venda");
+                if (dataStr != null) {
+                    try {
+                        // Tenta converter caso o banco tenha salvo como um número (milissegundos)
+                        long millis = Long.parseLong(dataStr);
+                        v.setData_venda(new java.sql.Date(millis));
+                    } catch (NumberFormatException ex) {
+                        // Se salvou como texto normal (YYYY-MM-DD)
+                        v.setData_venda(java.sql.Date.valueOf(dataStr));
+                    }
+                }
+
                 v.setValor_total(rs.getDouble("valor_total"));
-                
-                // Para simplificar, setamos apenas o ID do cliente. 
-                // Idealmente, você chamaria dao.ClienteDAO.pesquisar() aqui.
+
                 Cliente c = new Cliente();
                 c.setId(rs.getInt("id_cliente"));
                 v.setCliente(c);
-                
+
                 return v;
             }
 
         } catch (SQLException e) {
             System.err.println("Erro ao pesquisar venda: " + e.getMessage());
         }
-        return null;
+        return null; // Retorna null se não achou ou se deu erro
+    }
+
+    // ==========================================================
+    // MÉTODO AUXILIAR PARA A RNF004 (Contar vendas do mês)
+    // ==========================================================
+    // ==========================================================
+    // MÉTODO AUXILIAR PARA A RNF004 (Contar vendas do mês)
+    // ==========================================================
+    public int contarVendasPorClienteNoMes(int idCliente, String dataVendaStr) {
+        try {
+            // Extrai o ano e o mês da data digitada (Ex: de "2026-05-03" tira 2026 e 05)
+            String[] partes = dataVendaStr.split("-");
+            int ano = Integer.parseInt(partes[0]);
+            int mes = Integer.parseInt(partes[1]);
+
+            // A inteligência do Java: Descobre qual é o primeiro e o último dia daquele mês exato
+            java.time.YearMonth yearMonth = java.time.YearMonth.of(ano, mes);
+            java.sql.Date dataInicio = java.sql.Date.valueOf(yearMonth.atDay(1)); // Ex: 2026-05-01
+            java.sql.Date dataFim = java.sql.Date.valueOf(yearMonth.atEndOfMonth()); // Ex: 2026-05-31
+
+            // A query agora compara de Data para Data (usando maior/igual e menor/igual)
+            String sql = "SELECT COUNT(*) AS total FROM Venda WHERE id_cliente = ? AND data_venda >= ? AND data_venda <= ?";
+
+            try (java.sql.Connection conn = ConexaoBanco.getConnection();
+                 java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+                stmt.setInt(1, idCliente);
+
+                // Passamos os objetos java.sql.Date para o driver do banco se virar com a conversão
+                stmt.setDate(2, dataInicio);
+                stmt.setDate(3, dataFim);
+
+                java.sql.ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    int contagem = rs.getInt("total");
+                    // Log no console só pra você ver a mágica funcionando durante os testes
+                    System.out.println("=> [Verificação RNF004] O cliente " + idCliente + " possui " + contagem + " venda(s) registrada(s) neste mês.");
+                    return contagem;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao contar vendas do mês: " + e.getMessage());
+        }
+        return 0;
     }
 }

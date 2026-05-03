@@ -37,21 +37,24 @@ public class FornecedorDAO {
     // 2. ALTERAR (UPDATE)
     // ==========================================
     public boolean alterar(Fornecedor fornecedor) {
-        String sql = "UPDATE Fornecedor SET nome_fantasia = ?, razao_social = ?, cnpj = ? WHERE id = ?";
-        
-        try (Connection conn = ConexaoBanco.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+        // O comando SQL agora atualiza os dados ONDE o cnpj for igual ao digitado
+        String sql = "UPDATE Fornecedor SET nome_fantasia = ?, razao_social = ? WHERE cnpj = ?";
 
+        try (Connection conn = ConexaoBanco.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // Setando os novos valores
             stmt.setString(1, fornecedor.getNome_fantasia());
             stmt.setString(2, fornecedor.getRazao_social());
+
+            // Setando o CNPJ para a cláusula WHERE (condição de busca)
             stmt.setString(3, fornecedor.getCnpj());
-            stmt.setInt(4, fornecedor.getId());
 
             int linhasAfetadas = stmt.executeUpdate();
-            return linhasAfetadas > 0;
+            return linhasAfetadas > 0; // Retorna true se conseguiu alterar alguma linha
 
         } catch (SQLException e) {
-            System.err.println("Erro ao alterar fornecedor: " + e.getMessage());
+            System.out.println("Erro ao alterar fornecedor: " + e.getMessage());
             return false;
         }
     }
@@ -81,7 +84,7 @@ public class FornecedorDAO {
     // ==========================================
     public Fornecedor pesquisar(String cnpj) {
         String sql = "SELECT * FROM Fornecedor WHERE cnpj = ?";
-        
+        System.out.println("valor cnpj: " + cnpj);
         try (Connection conn = ConexaoBanco.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
 

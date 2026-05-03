@@ -70,19 +70,24 @@ public class ProdutoDAO {
     // ==========================================
     // 3. EXCLUIR (DELETE)
     // ==========================================
-    public boolean excluir(int idProduto) {
+    // ==========================================
+    // 3. EXCLUIR (DELETE)
+    // ==========================================
+    public boolean excluir(int id) {
         String sql = "DELETE FROM Produto WHERE id = ?";
 
-        try (Connection conn = ConexaoBanco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (java.sql.Connection conn = dao.ConexaoBanco.getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, idProduto);
-
+            stmt.setInt(1, id);
             int linhasAfetadas = stmt.executeUpdate();
+
+            // Retorna true se realmente apagou alguma linha
             return linhasAfetadas > 0;
 
-        } catch (SQLException e) {
-            System.err.println("Erro ao excluir produto. Ele pode estar atrelado a vendas ou compras: " + e.getMessage());
+        } catch (java.sql.SQLException e) {
+            // Se cair aqui, provavelmente é o banco bloqueando por causa de histórico em Vendas/Compras
+            System.err.println("Erro ao excluir produto. Ele pode estar vinculado a alguma transação: " + e.getMessage());
             return false;
         }
     }

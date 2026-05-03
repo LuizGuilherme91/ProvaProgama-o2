@@ -42,21 +42,22 @@ public class FornecedorController {
     // ==========================================
     // 2. ALTERAR
     // ==========================================
-    public boolean alterar(int id, String nomeFantasia, String razaoSocial, String cnpj) {
-        if (id <= 0) {
-            System.err.println("Validação falhou: ID do fornecedor inválido.");
+    public boolean alterar(String cnpj, String nomeFantasia, String razaoSocial) {
+        // Valida se o CNPJ foi preenchido
+        if (cnpj == null || cnpj.trim().isEmpty()) {
+            System.err.println("Validação falhou: CNPJ do fornecedor inválido.");
             return false;
         }
-        if (nomeFantasia == null || nomeFantasia.trim().isEmpty() || cnpj == null || cnpj.trim().isEmpty()) {
-            System.err.println("Validação falhou: Nome fantasia e CNPJ não podem ser vazios ao alterar.");
+        // Valida se o Nome Fantasia foi preenchido
+        if (nomeFantasia == null || nomeFantasia.trim().isEmpty()) {
+            System.err.println("Validação falhou: Nome fantasia não pode ser vazio ao alterar.");
             return false;
         }
 
         Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setId(id);
+        fornecedor.setCnpj(cnpj); // O CNPJ agora será usado para encontrar o registro
         fornecedor.setNome_fantasia(nomeFantasia);
         fornecedor.setRazao_social(razaoSocial);
-        fornecedor.setCnpj(cnpj);
 
         return fornecedorDAO.alterar(fornecedor);
     }

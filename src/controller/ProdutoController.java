@@ -80,9 +80,12 @@ public class ProdutoController {
     // ==========================================
     // 3. EXCLUIR
     // ==========================================
+    // ==========================================
+    // 3. EXCLUIR
+    // ==========================================
     public boolean excluir(int id) {
         if (id <= 0) {
-            System.err.println("Validação falhou: ID inválido.");
+            System.err.println("Validação falhou: ID do produto inválido.");
             return false;
         }
         return produtoDAO.excluir(id);

@@ -73,11 +73,11 @@ public class FornecedorView {
     }
 
     private void telaPesquisar() {
-        String idStr = JOptionPane.showInputDialog(null, "=== PESQUISAR FORNECEDOR ===\nDigite o ID do Fornecedor:");
+        String idStr = JOptionPane.showInputDialog(null, "=== PESQUISAR FORNECEDOR ===\nDigite o CNPJ do Fornecedor:");
         if (idStr == null || idStr.trim().isEmpty()) return;
 
         try {
-            int id = Integer.parseInt(idStr);
+
             Fornecedor f = fornecedorCtrl.pesquisar(idStr);
 
             if (f != null) {
@@ -88,7 +88,7 @@ public class FornecedorView {
                         "CNPJ: " + f.getCnpj();
                 JOptionPane.showMessageDialog(null, dados, "Pesquisa", JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(null, "Fornecedor não encontrado para o ID: " + id, "Aviso", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Fornecedor não encontrado para o ID: " + idStr, "Aviso", JOptionPane.WARNING_MESSAGE);
             }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "ID inválido! Digite apenas números.", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -96,39 +96,25 @@ public class FornecedorView {
     }
 
     private void telaAlterar() {
-        String idStr = JOptionPane.showInputDialog(null, "=== ALTERAR FORNECEDOR ===\nDigite o ID do Fornecedor que deseja alterar:");
-        if (idStr == null || idStr.trim().isEmpty()) return;
+        String cnpj = JOptionPane.showInputDialog(null, "=== ALTERAR FORNECEDOR ===\nDigite o CNPJ do Fornecedor que deseja alterar:");
+        if (cnpj == null || cnpj.trim().isEmpty()) return;
 
-        try {
-            int id = Integer.parseInt(idStr);
-            Fornecedor f = fornecedorCtrl.pesquisar(idStr);
+        // Pede os novos dados
+        JOptionPane.showMessageDialog(null, "Digite os novos dados para o Fornecedor de CNPJ: " + cnpj);
 
-            if (f != null) {
-                JOptionPane.showMessageDialog(null, "Deixe o campo em branco se não quiser alterar o valor atual.");
+        String nomeFantasia = JOptionPane.showInputDialog(null, "Novo Nome Fantasia:");
+        if (nomeFantasia == null || nomeFantasia.trim().isEmpty()) return;
 
-                String nomeFantasia = JOptionPane.showInputDialog(null, "Nome Fantasia atual: " + f.getNome_fantasia() + "\nNovo Nome Fantasia:");
-                if (nomeFantasia == null) return;
-                if (nomeFantasia.trim().isEmpty()) nomeFantasia = f.getNome_fantasia();
+        String razaoSocial = JOptionPane.showInputDialog(null, "Nova Razão Social:");
+        if (razaoSocial == null || razaoSocial.trim().isEmpty()) return;
 
-                String razaoSocial = JOptionPane.showInputDialog(null, "Razão Social atual: " + f.getRazao_social() + "\nNova Razão Social:");
-                if (razaoSocial == null) return;
-                if (razaoSocial.trim().isEmpty()) razaoSocial = f.getRazao_social();
+        // Manda o CNPJ no lugar do ID para o Controller
+        boolean sucesso = fornecedorCtrl.alterar(cnpj, nomeFantasia, razaoSocial);
 
-                String cnpj = JOptionPane.showInputDialog(null, "CNPJ atual: " + f.getCnpj() + "\nNovo CNPJ:");
-                if (cnpj == null) return;
-                if (cnpj.trim().isEmpty()) cnpj = f.getCnpj();
-
-                boolean sucesso = fornecedorCtrl.alterar(id, nomeFantasia, razaoSocial, cnpj);
-                if (sucesso) {
-                    JOptionPane.showMessageDialog(null, "Fornecedor alterado com sucesso!");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Erro ao alterar fornecedor.", "Erro", JOptionPane.ERROR_MESSAGE);
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, "Fornecedor não encontrado para o ID: " + id, "Aviso", JOptionPane.WARNING_MESSAGE);
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "ID inválido! Digite apenas números.", "Erro", JOptionPane.ERROR_MESSAGE);
+        if (sucesso) {
+            JOptionPane.showMessageDialog(null, "Fornecedor alterado com sucesso!");
+        } else {
+            JOptionPane.showMessageDialog(null, "Erro ao alterar. Verifique se o CNPJ digitado realmente existe no banco.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 

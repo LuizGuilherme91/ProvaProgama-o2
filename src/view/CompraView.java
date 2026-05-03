@@ -134,19 +134,23 @@ public class CompraView {
                 String novaData = JOptionPane.showInputDialog(null, "Data atual: " + c.getData_compra() + "\nNova Data (YYYY-MM-DD):");
                 if (novaData == null || novaData.trim().isEmpty()) return;
 
-                // Passando a lista de itens vazia apenas para atualizar a capa, se o seu controller permitir
-                boolean sucesso = compraCtrl.alterar(id, novaData, 1, 1);
+                String idFornStr = JOptionPane.showInputDialog(null, "Digite o ID do Fornecedor válido para esta compra:");
+                if (idFornStr == null || idFornStr.trim().isEmpty()) return;
+                int idFornecedor = Integer.parseInt(idFornStr);
+
+                // AQUI ESTÁ A CORREÇÃO: Passando os 4 parâmetros exatos que o Controller pede
+                boolean sucesso = compraCtrl.alterar(id, novaData, c.getValor_total(), idFornecedor);
 
                 if (sucesso) {
                     JOptionPane.showMessageDialog(null, "Compra alterada com sucesso!");
                 } else {
-                    JOptionPane.showMessageDialog(null, "Erro ao alterar compra.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Erro ao alterar compra. Verifique se o ID do Fornecedor realmente existe.", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Compra não encontrada.", "Aviso", JOptionPane.WARNING_MESSAGE);
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro ao processar a alteração.", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Erro ao processar a alteração. Digite apenas números no ID.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 

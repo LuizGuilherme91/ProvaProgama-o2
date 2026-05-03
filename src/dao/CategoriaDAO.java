@@ -17,18 +17,17 @@ public class CategoriaDAO {
     // ==========================================
     public boolean salvar(Categoria categoria) {
         String sql = "INSERT INTO Categoria (nome) VALUES (?)";
-        
+
+        // Colocando a Connection e o PreparedStatement dentro dos parênteses do try
         try (Connection conn = ConexaoBanco.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // model.Categoria só precisa do nome para ser inserida, o ID é automático
             stmt.setString(1, categoria.getNome());
-
-            int linhasAfetadas = stmt.executeUpdate();
-            return linhasAfetadas > 0; 
+            stmt.executeUpdate();
+            return true;
 
         } catch (SQLException e) {
-            System.err.println("Erro ao salvar categoria: " + e.getMessage());
+            System.out.println("Erro ao salvar categoria: " + e.getMessage());
             return false;
         }
     }

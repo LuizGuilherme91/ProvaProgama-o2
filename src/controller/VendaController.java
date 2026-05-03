@@ -8,12 +8,6 @@ import model.Venda;
 import java.sql.Date;
 import java.util.List;
 
-// Lembre-se de importar suas classes da model e dao usando Ctrl + .
-// Ex: import model.Venda;
-//     import model.Cliente;
-//     import model.ItemVenda;
-//     import dao.VendaDAO;
-
 public class VendaController {
 
     private VendaDAO vendaDAO;
@@ -23,7 +17,7 @@ public class VendaController {
     }
 
     // ==========================================
-    // 1. SALVAR
+    // 1. SALVAR (Com bloqueio RNF004)
     // ==========================================
     public boolean salvar(String dataVenda, int idCliente, List<ItemVenda> itens) {
         // Validações básicas
@@ -38,6 +32,15 @@ public class VendaController {
         if (itens == null || itens.isEmpty()) {
             System.err.println("Validação falhou: A venda precisa ter pelo menos um item.");
             return false;
+        }
+
+        // ==========================================================
+        // RNF004: Verifica quantas vendas o cliente tem no mês
+        // ==========================================================
+        int vendasNesteMes = vendaDAO.contarVendasPorClienteNoMes(idCliente, dataVenda);
+        if (vendasNesteMes >= 3) {
+            System.err.println("RNF004 Bloqueada: Cliente já possui 3 vendas neste mês.");
+            return false; // Bloqueia a venda imediatamente e devolve falso pra View
         }
 
         // Calcula o valor total da venda somando (quantidade * valor unitário) de cada item
@@ -61,7 +64,7 @@ public class VendaController {
 
         venda.setItens(itens);
 
-        // Manda pro DAO salvar (onde RNF001, RNF003, RNF004 e RNF005 serão executados)
+        // Manda pro DAO salvar (onde RNF001, RNF003 e RNF005 serão executados)
         return vendaDAO.salvar(venda);
     }
 

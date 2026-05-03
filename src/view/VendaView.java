@@ -134,19 +134,23 @@ public class VendaView {
                 String novaData = JOptionPane.showInputDialog(null, "Data atual: " + v.getData_venda() + "\nNova Data (YYYY-MM-DD):");
                 if (novaData == null || novaData.trim().isEmpty()) return;
 
-                // Passando lista vazia só para alterar a data da capa
-                boolean sucesso = vendaCtrl.alterar(id, novaData, 1, 1);
+                String idCliStr = JOptionPane.showInputDialog(null, "Digite o ID do Cliente válido para esta venda:");
+                if (idCliStr == null || idCliStr.trim().isEmpty()) return;
+                int idCliente = Integer.parseInt(idCliStr);
+
+                // AQUI ESTÁ A CORREÇÃO: Passando id, data, o valor total que já estava salvo e o id do cliente!
+                boolean sucesso = vendaCtrl.alterar(id, novaData, v.getValor_total(), idCliente);
 
                 if (sucesso) {
                     JOptionPane.showMessageDialog(null, "Venda alterada com sucesso!");
                 } else {
-                    JOptionPane.showMessageDialog(null, "Erro ao alterar venda.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Erro ao alterar venda. Verifique se o ID do Cliente realmente existe.", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Venda não encontrada.", "Aviso", JOptionPane.WARNING_MESSAGE);
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro ao processar a alteração.", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Erro ao processar a alteração. Digite apenas números no ID.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 

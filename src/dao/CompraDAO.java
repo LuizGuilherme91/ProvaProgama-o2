@@ -141,32 +141,40 @@ public class CompraDAO {
     // ==========================================
     // 3. EXCLUIR (DELETE)
     // ==========================================
+    // ==========================================
+    // 3. EXCLUIR (DELETE)
+    // ==========================================
     public boolean excluir(int idCompra) {
+        // Precisamos deletar os filhos (itens) primeiro, e depois o pai (compra)
         String sqlItens = "DELETE FROM ItemCompra WHERE id_compra = ?";
         String sqlCompra = "DELETE FROM Compra WHERE id = ?";
 
-        Connection conn = null;
+        java.sql.Connection conn = null;
         try {
-            conn = ConexaoBanco.getConnection();
-            conn.setAutoCommit(false);
+            conn = dao.ConexaoBanco.getConnection();
+            conn.setAutoCommit(false); // Inicia uma transação para garantir que as duas tabelas sejam afetadas juntas
 
-            try (PreparedStatement stmtItens = conn.prepareStatement(sqlItens)) {
+            // 1. Deleta os itens da compra
+            try (java.sql.PreparedStatement stmtItens = conn.prepareStatement(sqlItens)) {
                 stmtItens.setInt(1, idCompra);
                 stmtItens.executeUpdate();
             }
 
-            try (PreparedStatement stmtCompra = conn.prepareStatement(sqlCompra)) {
+            // 2. Deleta a capa da compra
+            try (java.sql.PreparedStatement stmtCompra = conn.prepareStatement(sqlCompra)) {
                 stmtCompra.setInt(1, idCompra);
                 stmtCompra.executeUpdate();
             }
 
-            conn.commit();
+            conn.commit(); // Confirma a exclusão nas duas tabelas
             return true;
 
-        } catch (SQLException e) {
+        } catch (java.sql.SQLException e) {
             try {
-                if (conn != null) conn.rollback();
-            } catch (SQLException ex) { }
+                if (conn != null) conn.rollback(); // Se algo der errado, cancela a exclusão
+            } catch (java.sql.SQLException ex) {
+                System.err.println("Erro no rollback: " + ex.getMessage());
+            }
             System.err.println("Erro ao excluir compra: " + e.getMessage());
             return false;
         } finally {
@@ -175,7 +183,9 @@ public class CompraDAO {
                     conn.setAutoCommit(true);
                     conn.close();
                 }
-            } catch (SQLException e) { }
+            } catch (java.sql.SQLException e) {
+                System.err.println("Erro ao fechar conexão: " + e.getMessage());
+            }
         }
     }
 

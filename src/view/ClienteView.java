@@ -79,7 +79,7 @@ public class ClienteView {
     }
 
     private void telaPesquisar() {
-        String idStr = JOptionPane.showInputDialog(null, "=== PESQUISAR CLIENTE ===\nDigite o ID do Cliente:");
+        String idStr = JOptionPane.showInputDialog(null, "=== PESQUISAR CLIENTE ===\nDigite o CPF do Cliente:");
         if (idStr == null || idStr.trim().isEmpty()) return;
 
         try {
@@ -103,7 +103,7 @@ public class ClienteView {
     }
 
     private void telaAlterar() {
-        String idStr = JOptionPane.showInputDialog(null, "=== ALTERAR CLIENTE ===\nDigite o ID do Cliente que deseja alterar:");
+        String idStr = JOptionPane.showInputDialog(null, "=== ALTERAR CLIENTE ===\nDigite o CPF do Cliente que deseja alterar:");
         if (idStr == null || idStr.trim().isEmpty()) return;
 
         try {
