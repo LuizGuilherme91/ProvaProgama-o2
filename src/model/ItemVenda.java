@@ -5,8 +5,8 @@ public class ItemVenda {
     private double quantidade;
     private double valor_unitario;
     private double subtotal;
-    private Venda venda; // Associação com model.Venda
-    private Produto produto; // Associação com model.Produto
+    private Venda venda;
+    private Produto produto;
 
     public ItemVenda() {
     }

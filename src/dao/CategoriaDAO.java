@@ -12,13 +12,9 @@ import java.util.List;
 
 public class CategoriaDAO {
 
-    // ==========================================
-    // 1. SALVAR (CREATE)
-    // ==========================================
     public boolean salvar(Categoria categoria) {
         String sql = "INSERT INTO Categoria (nome) VALUES (?)";
 
-        // Colocando a Connection e o PreparedStatement dentro dos parênteses do try
         try (Connection conn = ConexaoBanco.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -32,9 +28,6 @@ public class CategoriaDAO {
         }
     }
 
-    // ==========================================
-    // 2. ALTERAR (UPDATE)
-    // ==========================================
     public boolean alterar(Categoria categoria) {
         String sql = "UPDATE Categoria SET nome = ? WHERE id = ?";
         
@@ -53,9 +46,6 @@ public class CategoriaDAO {
         }
     }
 
-    // ==========================================
-    // 3. EXCLUIR (DELETE)
-    // ==========================================
     public boolean excluir(int idCategoria) {
         String sql = "DELETE FROM Categoria WHERE id = ?";
         
@@ -73,11 +63,7 @@ public class CategoriaDAO {
         }
     }
 
-    // ==========================================
-    // 4. PESQUISAR (READ)
-    // ==========================================
     public Categoria pesquisar(int id) {
-        // Como a categoria não tem CPF ou CNPJ, a pesquisa mais lógica é pelo ID
         String sql = "SELECT * FROM Categoria WHERE id = ?";
         
         try (Connection conn = ConexaoBanco.getConnection();
@@ -101,9 +87,6 @@ public class CategoriaDAO {
         return null;
     }
 
-    // ==========================================
-    // MÉTODO EXTRA: LISTAR TODAS
-    // ==========================================
     public List<Categoria> listarTodas() {
         List<Categoria> listaCategorias = new ArrayList<>();
         String sql = "SELECT * FROM Categoria";

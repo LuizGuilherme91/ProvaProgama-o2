@@ -9,7 +9,6 @@ public class Venda extends ClasseGenerica{
     private double valor_total;
     private Cliente cliente; // Objeto cliente
     private List<ItemVenda> itens; // Lista com os produtos que estão sendo vendidos
-// + Getters e Setters
 
     public Venda() {
     }

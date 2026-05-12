@@ -7,11 +7,6 @@ import model.Produto;
 
 import java.util.List;
 
-// Lembre-se de importar o Produto, a Categoria e o ProdutoDAO com Ctrl + .
-// Ex: import model.Produto;
-//     import model.Categoria;
-//     import dao.ProdutoDAO;
-
 public class ProdutoController {
 
     private ProdutoDAO produtoDAO;
@@ -20,11 +15,7 @@ public class ProdutoController {
         this.produtoDAO = new ProdutoDAO();
     }
 
-    // ==========================================
-    // 1. SALVAR
-    // ==========================================
     public boolean salvar(String nome, double precoMedio, double qtdeEstoque, double valorUltimaCompra, double valorUltimaVenda, int idCategoria) {
-        // Validação: Nome é obrigatório e precisa ter uma categoria vinculada
         if (nome == null || nome.trim().isEmpty()) {
             System.err.println("Validação falhou: O nome do produto é obrigatório.");
             return false;
@@ -41,7 +32,6 @@ public class ProdutoController {
         produto.setValor_ultima_compra(valorUltimaCompra);
         produto.setValor_ultima_venda(valorUltimaVenda);
 
-        // Monta o objeto Categoria apenas com o ID para o DAO conseguir puxar
         Categoria categoria = new Categoria();
         categoria.setId(idCategoria);
         produto.setCategoria(categoria);
@@ -49,9 +39,6 @@ public class ProdutoController {
         return produtoDAO.salvar(produto);
     }
 
-    // ==========================================
-    // 2. ALTERAR
-    // ==========================================
     public boolean alterar(int id, String nome, double precoMedio, double qtdeEstoque, double valorUltimaCompra, double valorUltimaVenda, int idCategoria) {
         if (id <= 0) {
             System.err.println("Validação falhou: ID do produto inválido.");
@@ -77,12 +64,6 @@ public class ProdutoController {
         return produtoDAO.alterar(produto);
     }
 
-    // ==========================================
-    // 3. EXCLUIR
-    // ==========================================
-    // ==========================================
-    // 3. EXCLUIR
-    // ==========================================
     public boolean excluir(int id) {
         if (id <= 0) {
             System.err.println("Validação falhou: ID do produto inválido.");
@@ -91,9 +72,6 @@ public class ProdutoController {
         return produtoDAO.excluir(id);
     }
 
-    // ==========================================
-    // 4. PESQUISAR (Pelo ID)
-    // ==========================================
     public Produto pesquisar(int id) {
         if (id <= 0) {
             System.err.println("Validação falhou: ID inválido para pesquisa.");
@@ -102,9 +80,6 @@ public class ProdutoController {
         return produtoDAO.pesquisar(id);
     }
 
-    // ==========================================
-    // 5. LISTAR TODOS
-    // ==========================================
     public List<Produto> listarTodos() {
         return produtoDAO.listarTodos();
     }

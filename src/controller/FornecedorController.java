@@ -5,10 +5,6 @@ import model.Fornecedor;
 
 import java.util.List;
 
-// Lembre-se de importar o Fornecedor e o FornecedorDAO com Ctrl + .
-// Ex: import model.Fornecedor;
-//     import dao.FornecedorDAO;
-
 public class FornecedorController {
 
     private FornecedorDAO fornecedorDAO;
@@ -17,11 +13,7 @@ public class FornecedorController {
         this.fornecedorDAO = new FornecedorDAO();
     }
 
-    // ==========================================
-    // 1. SALVAR
-    // ==========================================
     public boolean salvar(String nomeFantasia, String razaoSocial, String cnpj) {
-        // Validação: Nome fantasia e CNPJ não podem ser vazios
         if (nomeFantasia == null || nomeFantasia.trim().isEmpty()) {
             System.err.println("Validação falhou: O nome fantasia é obrigatório.");
             return false;
@@ -39,32 +31,24 @@ public class FornecedorController {
         return fornecedorDAO.salvar(fornecedor);
     }
 
-    // ==========================================
-    // 2. ALTERAR
-    // ==========================================
     public boolean alterar(String cnpj, String nomeFantasia, String razaoSocial) {
-        // Valida se o CNPJ foi preenchido
         if (cnpj == null || cnpj.trim().isEmpty()) {
             System.err.println("Validação falhou: CNPJ do fornecedor inválido.");
             return false;
         }
-        // Valida se o Nome Fantasia foi preenchido
         if (nomeFantasia == null || nomeFantasia.trim().isEmpty()) {
             System.err.println("Validação falhou: Nome fantasia não pode ser vazio ao alterar.");
             return false;
         }
 
         Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setCnpj(cnpj); // O CNPJ agora será usado para encontrar o registro
+        fornecedor.setCnpj(cnpj);
         fornecedor.setNome_fantasia(nomeFantasia);
         fornecedor.setRazao_social(razaoSocial);
 
         return fornecedorDAO.alterar(fornecedor);
     }
 
-    // ==========================================
-    // 3. EXCLUIR
-    // ==========================================
     public boolean excluir(int id) {
         if (id <= 0) {
             System.err.println("Validação falhou: ID inválido.");
@@ -73,9 +57,6 @@ public class FornecedorController {
         return fornecedorDAO.excluir(id);
     }
 
-    // ==========================================
-    // 4. PESQUISAR (Pelo CNPJ, conforme o DAO)
-    // ==========================================
     public Fornecedor pesquisar(String cnpj) {
         if (cnpj == null || cnpj.trim().isEmpty()) {
             System.err.println("Validação falhou: CNPJ inválido para pesquisa.");
@@ -84,9 +65,6 @@ public class FornecedorController {
         return fornecedorDAO.pesquisar(cnpj);
     }
 
-    // ==========================================
-    // 5. LISTAR TODOS
-    // ==========================================
     public List<Fornecedor> listarTodos() {
         return fornecedorDAO.listarTodos();
     }

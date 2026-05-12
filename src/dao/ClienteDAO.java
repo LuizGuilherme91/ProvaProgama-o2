@@ -11,9 +11,6 @@ import java.util.List;
 
 public class ClienteDAO {
 
-    // ==========================================
-    // 1. SALVAR (CREATE)
-    // ==========================================
     public boolean salvar(Cliente cliente) {
         String sql = "INSERT INTO Cliente (nome, cpf, rg, endereco, telefone) VALUES (?, ?, ?, ?, ?)";
         
@@ -27,7 +24,6 @@ public class ClienteDAO {
             stmt.setString(5, cliente.getTelefone());
 
             int linhasAfetadas = stmt.executeUpdate();
-            // Retorna true se inseriu pelo menos uma linha
             return linhasAfetadas > 0; 
 
         } catch (SQLException e) {
@@ -36,11 +32,7 @@ public class ClienteDAO {
         }
     }
 
-    // ==========================================
-    // 2. ALTERAR (UPDATE)
-    // ==========================================
     public boolean alterar(Cliente cliente) {
-        // O UPDATE usa o 'id' para saber exatamente qual cliente modificar
         String sql = "UPDATE Cliente SET nome = ?, cpf = ?, rg = ?, endereco = ?, telefone = ? WHERE id = ?";
         
         try (Connection conn = ConexaoBanco.getConnection();
@@ -62,9 +54,6 @@ public class ClienteDAO {
         }
     }
 
-    // ==========================================
-    // 3. EXCLUIR (DELETE)
-    // ==========================================
     public boolean excluir(int idCliente) {
         String sql = "DELETE FROM Cliente WHERE id = ?";
         
@@ -82,9 +71,6 @@ public class ClienteDAO {
         }
     }
 
-    // ==========================================
-    // 4. PESQUISAR (READ)
-    // ==========================================
     public Cliente pesquisar(String cpf) {
         String sql = "SELECT * FROM Cliente WHERE cpf = ?";
         
@@ -94,7 +80,6 @@ public class ClienteDAO {
             stmt.setString(1, cpf);
             ResultSet rs = stmt.executeQuery();
 
-            // Se encontrou no banco, monta o objeto e devolve
             if (rs.next()) {
                 Cliente cliente = new Cliente();
                 cliente.setId(rs.getInt("id"));
@@ -111,12 +96,9 @@ public class ClienteDAO {
             System.err.println("Erro ao pesquisar cliente por CPF: " + e.getMessage());
         }
         
-        return null; // Retorna nulo se o CPF não for encontrado
+        return null;
     }
 
-    // ==========================================
-    // MÉTODO EXTRA: LISTAR TODOS (Ajuda muito nos testes)
-    // ==========================================
     public List<Cliente> listarTodos() {
         List<Cliente> listaClientes = new ArrayList<>();
         String sql = "SELECT * FROM Cliente";

@@ -11,7 +11,6 @@ public class ConexaoBanco {
 
     public static Connection getConnection() {
         try {
-            // Esta linha força o Java a carregar o Driver que você adicionou no IntelliJ
             Class.forName("org.sqlite.JDBC");
 
             Connection conn = DriverManager.getConnection(URL);

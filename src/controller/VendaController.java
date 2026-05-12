@@ -16,11 +16,7 @@ public class VendaController {
         this.vendaDAO = new VendaDAO();
     }
 
-    // ==========================================
-    // 1. SALVAR (Com bloqueio RNF004)
-    // ==========================================
     public boolean salvar(String dataVenda, int idCliente, List<ItemVenda> itens) {
-        // Validações básicas
         if (dataVenda == null || dataVenda.trim().isEmpty()) {
             System.err.println("Validação falhou: A data da venda é obrigatória.");
             return false;
@@ -34,16 +30,12 @@ public class VendaController {
             return false;
         }
 
-        // ==========================================================
-        // RNF004: Verifica quantas vendas o cliente tem no mês
-        // ==========================================================
         int vendasNesteMes = vendaDAO.contarVendasPorClienteNoMes(idCliente, dataVenda);
         if (vendasNesteMes >= 3) {
             System.err.println("RNF004 Bloqueada: Cliente já possui 3 vendas neste mês.");
-            return false; // Bloqueia a venda imediatamente e devolve falso pra View
+            return false;
         }
 
-        // Calcula o valor total da venda somando (quantidade * valor unitário) de cada item
         double valorTotalCalculado = 0;
         for (ItemVenda item : itens) {
             if (item.getQuantidade() <= 0 || item.getValor_unitario() <= 0) {
@@ -53,7 +45,6 @@ public class VendaController {
             valorTotalCalculado += (item.getQuantidade() * item.getValor_unitario());
         }
 
-        // Monta o objeto Venda
         Venda venda = new Venda();
         venda.setData_venda(Date.valueOf(dataVenda));
         venda.setValor_total(valorTotalCalculado);
@@ -64,13 +55,9 @@ public class VendaController {
 
         venda.setItens(itens);
 
-        // Manda pro DAO salvar (onde RNF001, RNF003 e RNF005 serão executados)
         return vendaDAO.salvar(venda);
     }
 
-    // ==========================================
-    // 2. ALTERAR (Apenas dados da capa da venda)
-    // ==========================================
     public boolean alterar(int idVenda, String novaData, double novoValorTotal, int idCliente) {
         if (idVenda <= 0) {
             System.err.println("Validação falhou: ID da venda inválido.");
@@ -89,9 +76,6 @@ public class VendaController {
         return vendaDAO.alterar(venda);
     }
 
-    // ==========================================
-    // 3. EXCLUIR
-    // ==========================================
     public boolean excluir(int id) {
         if (id <= 0) {
             System.err.println("Validação falhou: ID inválido.");
@@ -100,9 +84,6 @@ public class VendaController {
         return vendaDAO.excluir(id);
     }
 
-    // ==========================================
-    // 4. PESQUISAR
-    // ==========================================
     public Venda pesquisar(int id) {
         if (id <= 0) {
             System.err.println("Validação falhou: ID inválido para pesquisa.");

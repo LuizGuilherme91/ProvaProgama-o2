@@ -12,9 +12,6 @@ import java.sql.Statement;
 
 public class VendaDAO {
 
-    // ==========================================
-    // 1. SALVAR (CREATE)
-    // ==========================================
     public boolean salvar(Venda venda) {
         String sqlVenda = "INSERT INTO Venda (data_venda, valor_total, id_cliente) VALUES (?, ?, ?)";
         String sqlItem = "INSERT INTO ItemVenda (id_venda, id_produto, quantidade, valor_unitario) VALUES (?, ?, ?, ?)";
@@ -27,7 +24,6 @@ public class VendaDAO {
             conn = ConexaoBanco.getConnection();
             conn.setAutoCommit(false);
 
-            // PASSO 1: Salvar a Venda e recuperar o ID gerado
             int idVendaGerado = 0;
             try (PreparedStatement stmtVenda = conn.prepareStatement(sqlVenda, Statement.RETURN_GENERATED_KEYS)) {
                 stmtVenda.setDate(1, venda.getData_venda());
@@ -41,7 +37,6 @@ public class VendaDAO {
                 }
             }
 
-            // PASSO 2: Salvar os Itens e Atualizar Produtos
             try (PreparedStatement stmtItem = conn.prepareStatement(sqlItem);
                  PreparedStatement stmtVerificaEstoque = conn.prepareStatement(sqlVerificaEstoque);
                  PreparedStatement stmtAtualizaProduto = conn.prepareStatement(sqlAtualizaProduto)) {
@@ -54,7 +49,6 @@ public class VendaDAO {
                     if (rsEstoque.next()) {
                         double estoqueAtual = rsEstoque.getDouble("qtde_estoque");
 
-                        // RNF003
                         if (estoqueAtual < 1 || estoqueAtual < item.getQuantidade()) {
                             System.err.println("Operação abortada: Estoque insuficiente para o produto ID " + item.getProduto().getId() + ". (RNF003)");
                             conn.rollback();
@@ -68,7 +62,6 @@ public class VendaDAO {
                     stmtItem.setDouble(4, item.getValor_unitario());
                     stmtItem.executeUpdate();
 
-                    // RNF001 e RNF005
                     stmtAtualizaProduto.setDouble(1, item.getQuantidade());
                     stmtAtualizaProduto.setDouble(2, item.getValor_unitario());
                     stmtAtualizaProduto.setInt(3, item.getProduto().getId());
@@ -99,9 +92,6 @@ public class VendaDAO {
         }
     }
 
-    // ==========================================
-    // 2. ALTERAR (UPDATE)
-    // ==========================================
     public boolean alterar(Venda venda) {
         String sql = "UPDATE Venda SET data_venda = ?, valor_total = ?, id_cliente = ? WHERE id = ?";
 
@@ -120,9 +110,6 @@ public class VendaDAO {
         }
     }
 
-    // ==========================================
-    // 3. EXCLUIR (DELETE)
-    // ==========================================
     public boolean excluir(int idVenda) {
         String sqlItens = "DELETE FROM ItemVenda WHERE id_venda = ?";
         String sqlVenda = "DELETE FROM Venda WHERE id = ?";
@@ -161,12 +148,6 @@ public class VendaDAO {
         }
     }
 
-    // ==========================================
-    // 4. PESQUISAR (READ)
-    // ==========================================
-    // ==========================================
-    // 4. PESQUISAR (READ)
-    // ==========================================
     public Venda pesquisar(int id) {
         String sql = "SELECT * FROM Venda WHERE id = ?";
 
@@ -180,15 +161,12 @@ public class VendaDAO {
                 Venda v = new Venda();
                 v.setId(rs.getInt("id"));
 
-                // Tratamento especial para o SQLite não surtar com as datas
                 String dataStr = rs.getString("data_venda");
                 if (dataStr != null) {
                     try {
-                        // Tenta converter caso o banco tenha salvo como um número (milissegundos)
                         long millis = Long.parseLong(dataStr);
                         v.setData_venda(new java.sql.Date(millis));
                     } catch (NumberFormatException ex) {
-                        // Se salvou como texto normal (YYYY-MM-DD)
                         v.setData_venda(java.sql.Date.valueOf(dataStr));
                     }
                 }
@@ -205,28 +183,19 @@ public class VendaDAO {
         } catch (SQLException e) {
             System.err.println("Erro ao pesquisar venda: " + e.getMessage());
         }
-        return null; // Retorna null se não achou ou se deu erro
+        return null;
     }
 
-    // ==========================================================
-    // MÉTODO AUXILIAR PARA A RNF004 (Contar vendas do mês)
-    // ==========================================================
-    // ==========================================================
-    // MÉTODO AUXILIAR PARA A RNF004 (Contar vendas do mês)
-    // ==========================================================
     public int contarVendasPorClienteNoMes(int idCliente, String dataVendaStr) {
         try {
-            // Extrai o ano e o mês da data digitada (Ex: de "2026-05-03" tira 2026 e 05)
             String[] partes = dataVendaStr.split("-");
             int ano = Integer.parseInt(partes[0]);
             int mes = Integer.parseInt(partes[1]);
 
-            // A inteligência do Java: Descobre qual é o primeiro e o último dia daquele mês exato
             java.time.YearMonth yearMonth = java.time.YearMonth.of(ano, mes);
-            java.sql.Date dataInicio = java.sql.Date.valueOf(yearMonth.atDay(1)); // Ex: 2026-05-01
-            java.sql.Date dataFim = java.sql.Date.valueOf(yearMonth.atEndOfMonth()); // Ex: 2026-05-31
+            java.sql.Date dataInicio = java.sql.Date.valueOf(yearMonth.atDay(1));
+            java.sql.Date dataFim = java.sql.Date.valueOf(yearMonth.atEndOfMonth());
 
-            // A query agora compara de Data para Data (usando maior/igual e menor/igual)
             String sql = "SELECT COUNT(*) AS total FROM Venda WHERE id_cliente = ? AND data_venda >= ? AND data_venda <= ?";
 
             try (java.sql.Connection conn = ConexaoBanco.getConnection();
@@ -234,14 +203,12 @@ public class VendaDAO {
 
                 stmt.setInt(1, idCliente);
 
-                // Passamos os objetos java.sql.Date para o driver do banco se virar com a conversão
                 stmt.setDate(2, dataInicio);
                 stmt.setDate(3, dataFim);
 
                 java.sql.ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
                     int contagem = rs.getInt("total");
-                    // Log no console só pra você ver a mágica funcionando durante os testes
                     System.out.println("=> [Verificação RNF004] O cliente " + idCliente + " possui " + contagem + " venda(s) registrada(s) neste mês.");
                     return contagem;
                 }

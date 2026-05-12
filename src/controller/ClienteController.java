@@ -5,9 +5,6 @@ import model.Cliente;
 
 import java.util.List;
 
-// Lembre-se de importar o Cliente e o ClienteDAO com Ctrl + .
-// Ex: import model.Cliente;
-//     import dao.ClienteDAO;
 
 public class ClienteController {
 
@@ -17,11 +14,8 @@ public class ClienteController {
         this.clienteDAO = new ClienteDAO();
     }
 
-    // ==========================================
-    // 1. SALVAR
-    // ==========================================
+
     public boolean salvar(String nome, String cpf, String rg, String endereco, String telefone) {
-        // Validação: Nome e CPF não podem ser vazios (são obrigatórios no nosso banco)
         if (nome == null || nome.trim().isEmpty()) {
             System.err.println("Validação falhou: O nome do cliente é obrigatório.");
             return false;
@@ -41,9 +35,6 @@ public class ClienteController {
         return clienteDAO.salvar(cliente);
     }
 
-    // ==========================================
-    // 2. ALTERAR
-    // ==========================================
     public boolean alterar(int id, String nome, String cpf, String rg, String endereco, String telefone) {
         if (id <= 0) {
             System.err.println("Validação falhou: ID do cliente inválido.");
@@ -65,9 +56,6 @@ public class ClienteController {
         return clienteDAO.alterar(cliente);
     }
 
-    // ==========================================
-    // 3. EXCLUIR
-    // ==========================================
     public boolean excluir(int id) {
         if (id <= 0) {
             System.err.println("Validação falhou: ID inválido.");
@@ -76,9 +64,6 @@ public class ClienteController {
         return clienteDAO.excluir(id);
     }
 
-    // ==========================================
-    // 4. PESQUISAR (Pelo CPF, conforme o DAO)
-    // ==========================================
     public Cliente pesquisar(String cpf) {
         if (cpf == null || cpf.trim().isEmpty()) {
             System.err.println("Validação falhou: CPF inválido para pesquisa.");
@@ -87,9 +72,6 @@ public class ClienteController {
         return clienteDAO.pesquisar(cpf);
     }
 
-    // ==========================================
-    // 5. LISTAR TODOS
-    // ==========================================
     public List<Cliente> listarTodos() {
         return clienteDAO.listarTodos();
     }

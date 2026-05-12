@@ -10,14 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-// Lembre-se de importar as suas entidades (model.Compra, model.ItemCompra, model.Fornecedor, model.Produto, etc)
-// usando o atalho Ctrl + .
-
 public class CompraDAO {
 
-    // ==========================================
-    // 1. SALVAR (CREATE) - COM REGRAS DE NEGÓCIO
-    // ==========================================
     public boolean salvar(Compra compra) {
         String sqlCompra = "INSERT INTO Compra (data_compra, valor_total, id_fornecedor) VALUES (?, ?, ?)";
         String sqlItem = "INSERT INTO ItemCompra (id_compra, id_produto, quantidade, valor_unitario) VALUES (?, ?, ?, ?)";
@@ -28,11 +22,8 @@ public class CompraDAO {
 
         try {
             conn = ConexaoBanco.getConnection();
-            conn.setAutoCommit(false); // Inicia a transação (tudo junto ou nada)
+            conn.setAutoCommit(false);
 
-            // ------------------------------------------------------------------
-            // PASSO 1: Salvar a model.Compra e recuperar o ID gerado
-            // ------------------------------------------------------------------
             int idCompraGerado = 0;
             try (PreparedStatement stmtCompra = conn.prepareStatement(sqlCompra, Statement.RETURN_GENERATED_KEYS)) {
                 stmtCompra.setString(1, compra.getData_compra());
@@ -46,23 +37,18 @@ public class CompraDAO {
                 }
             }
 
-            // ------------------------------------------------------------------
-            // PASSO 2: Salvar os Itens e Atualizar Estoque/Preços
-            // ------------------------------------------------------------------
             try (PreparedStatement stmtItem = conn.prepareStatement(sqlItem);
                  PreparedStatement stmtBuscaProduto = conn.prepareStatement(sqlBuscaProduto);
                  PreparedStatement stmtAtualizaProduto = conn.prepareStatement(sqlAtualizaProduto)) {
 
                 for (ItemCompra item : compra.getItens()) {
 
-                    // Insere o model.ItemCompra no banco
                     stmtItem.setInt(1, idCompraGerado);
                     stmtItem.setInt(2, item.getProduto().getId());
                     stmtItem.setDouble(3, item.getQuantidade());
                     stmtItem.setDouble(4, item.getValor_unitario());
                     stmtItem.executeUpdate();
 
-                    // Busca as informações atuais do produto
                     stmtBuscaProduto.setInt(1, item.getProduto().getId());
                     ResultSet rsProduto = stmtBuscaProduto.executeQuery();
 
@@ -70,21 +56,17 @@ public class CompraDAO {
                         double estoqueAtual = rsProduto.getDouble("qtde_estoque");
                         double precoMedioAtual = rsProduto.getDouble("preco_medio");
 
-                        // REGRA DE NEGÓCIO: RNF002 (Somar estoque)
                         double novoEstoque = estoqueAtual + item.getQuantidade();
 
-                        // REGRA DE NEGÓCIO: RNF007 (Calcular novo preço médio ponderado)
                         double novoPrecoMedio;
                         if (estoqueAtual <= 0) {
-                            novoPrecoMedio = item.getValor_unitario(); // Se o estoque estava zerado, o médio é o novo
+                            novoPrecoMedio = item.getValor_unitario();
                         } else {
-                            // Cálculo da Média Ponderada
                             double valorTotalAntigo = estoqueAtual * precoMedioAtual;
                             double valorTotalNovo = item.getQuantidade() * item.getValor_unitario();
                             novoPrecoMedio = (valorTotalAntigo + valorTotalNovo) / novoEstoque;
                         }
 
-                        // REGRA DE NEGÓCIO: Atualiza RNF002 (Estoque), RNF006 (Valor Última model.Compra) e RNF007 (Preço Médio)
                         stmtAtualizaProduto.setDouble(1, novoEstoque);
                         stmtAtualizaProduto.setDouble(2, item.getValor_unitario());
                         stmtAtualizaProduto.setDouble(3, novoPrecoMedio);
@@ -94,12 +76,12 @@ public class CompraDAO {
                 }
             }
 
-            conn.commit(); // Se tudo deu certo, salva no banco!
+            conn.commit();
             return true;
 
         } catch (SQLException e) {
             try {
-                if (conn != null) conn.rollback(); // Desfaz tudo se der erro
+                if (conn != null) conn.rollback();
             } catch (SQLException ex) {
                 System.err.println("Erro ao fazer rollback: " + ex.getMessage());
             }
@@ -117,9 +99,6 @@ public class CompraDAO {
         }
     }
 
-    // ==========================================
-    // 2. ALTERAR (UPDATE)
-    // ==========================================
     public boolean alterar(Compra compra) {
         String sql = "UPDATE Compra SET data_compra = ?, valor_total = ?, id_fornecedor = ? WHERE id = ?";
 
@@ -138,40 +117,31 @@ public class CompraDAO {
         }
     }
 
-    // ==========================================
-    // 3. EXCLUIR (DELETE)
-    // ==========================================
-    // ==========================================
-    // 3. EXCLUIR (DELETE)
-    // ==========================================
     public boolean excluir(int idCompra) {
-        // Precisamos deletar os filhos (itens) primeiro, e depois o pai (compra)
         String sqlItens = "DELETE FROM ItemCompra WHERE id_compra = ?";
         String sqlCompra = "DELETE FROM Compra WHERE id = ?";
 
         java.sql.Connection conn = null;
         try {
             conn = dao.ConexaoBanco.getConnection();
-            conn.setAutoCommit(false); // Inicia uma transação para garantir que as duas tabelas sejam afetadas juntas
+            conn.setAutoCommit(false);
 
-            // 1. Deleta os itens da compra
             try (java.sql.PreparedStatement stmtItens = conn.prepareStatement(sqlItens)) {
                 stmtItens.setInt(1, idCompra);
                 stmtItens.executeUpdate();
             }
 
-            // 2. Deleta a capa da compra
             try (java.sql.PreparedStatement stmtCompra = conn.prepareStatement(sqlCompra)) {
                 stmtCompra.setInt(1, idCompra);
                 stmtCompra.executeUpdate();
             }
 
-            conn.commit(); // Confirma a exclusão nas duas tabelas
+            conn.commit();
             return true;
 
         } catch (java.sql.SQLException e) {
             try {
-                if (conn != null) conn.rollback(); // Se algo der errado, cancela a exclusão
+                if (conn != null) conn.rollback();
             } catch (java.sql.SQLException ex) {
                 System.err.println("Erro no rollback: " + ex.getMessage());
             }
@@ -189,9 +159,6 @@ public class CompraDAO {
         }
     }
 
-    // ==========================================
-    // 4. PESQUISAR (READ)
-    // ==========================================
     public Compra pesquisar(int id) {
         String sql = "SELECT * FROM Compra WHERE id = ?";
 

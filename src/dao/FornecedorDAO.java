@@ -11,9 +11,6 @@ import java.util.List;
 
 public class FornecedorDAO {
 
-    // ==========================================
-    // 1. SALVAR (CREATE)
-    // ==========================================
     public boolean salvar(Fornecedor fornecedor) {
         String sql = "INSERT INTO Fornecedor (nome_fantasia, razao_social, cnpj) VALUES (?, ?, ?)";
         
@@ -33,25 +30,19 @@ public class FornecedorDAO {
         }
     }
 
-    // ==========================================
-    // 2. ALTERAR (UPDATE)
-    // ==========================================
     public boolean alterar(Fornecedor fornecedor) {
-        // O comando SQL agora atualiza os dados ONDE o cnpj for igual ao digitado
         String sql = "UPDATE Fornecedor SET nome_fantasia = ?, razao_social = ? WHERE cnpj = ?";
 
         try (Connection conn = ConexaoBanco.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Setando os novos valores
             stmt.setString(1, fornecedor.getNome_fantasia());
             stmt.setString(2, fornecedor.getRazao_social());
 
-            // Setando o CNPJ para a cláusula WHERE (condição de busca)
             stmt.setString(3, fornecedor.getCnpj());
 
             int linhasAfetadas = stmt.executeUpdate();
-            return linhasAfetadas > 0; // Retorna true se conseguiu alterar alguma linha
+            return linhasAfetadas > 0;
 
         } catch (SQLException e) {
             System.out.println("Erro ao alterar fornecedor: " + e.getMessage());
@@ -59,9 +50,6 @@ public class FornecedorDAO {
         }
     }
 
-    // ==========================================
-    // 3. EXCLUIR (DELETE)
-    // ==========================================
     public boolean excluir(int idFornecedor) {
         String sql = "DELETE FROM Fornecedor WHERE id = ?";
         
@@ -79,9 +67,6 @@ public class FornecedorDAO {
         }
     }
 
-    // ==========================================
-    // 4. PESQUISAR (READ)
-    // ==========================================
     public Fornecedor pesquisar(String cnpj) {
         String sql = "SELECT * FROM Fornecedor WHERE cnpj = ?";
         System.out.println("valor cnpj: " + cnpj);
@@ -108,9 +93,6 @@ public class FornecedorDAO {
         return null;
     }
 
-    // ==========================================
-    // MÉTODO EXTRA: LISTAR TODOS
-    // ==========================================
     public List<Fornecedor> listarTodos() {
         List<Fornecedor> listaFornecedores = new ArrayList<>();
         String sql = "SELECT * FROM Fornecedor";

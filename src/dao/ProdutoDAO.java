@@ -10,15 +10,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-// Lembre-se de importar o model.Produto e a model.Categoria do seu pacote model!
-// Ex: import model.model.Produto;
-//     import model.model.Categoria;
 
 public class ProdutoDAO {
 
-    // ==========================================
-    // 1. SALVAR (CREATE)
-    // ==========================================
     public boolean salvar(Produto produto) {
         String sql = "INSERT INTO Produto (nome, preco_medio, qtde_estoque, valor_ultima_compra, valor_ultima_venda, id_categoria) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -30,7 +24,7 @@ public class ProdutoDAO {
             stmt.setDouble(3, produto.getQtde_estoque());
             stmt.setDouble(4, produto.getValor_ultima_compra());
             stmt.setDouble(5, produto.getValor_ultima_venda());
-            stmt.setInt(6, produto.getCategoria().getId()); // Pega o ID do objeto model.Categoria
+            stmt.setInt(6, produto.getCategoria().getId());
 
             int linhasAfetadas = stmt.executeUpdate();
             return linhasAfetadas > 0;
@@ -41,9 +35,6 @@ public class ProdutoDAO {
         }
     }
 
-    // ==========================================
-    // 2. ALTERAR (UPDATE)
-    // ==========================================
     public boolean alterar(Produto produto) {
         String sql = "UPDATE Produto SET nome = ?, preco_medio = ?, qtde_estoque = ?, valor_ultima_compra = ?, valor_ultima_venda = ?, id_categoria = ? WHERE id = ?";
 
@@ -67,12 +58,6 @@ public class ProdutoDAO {
         }
     }
 
-    // ==========================================
-    // 3. EXCLUIR (DELETE)
-    // ==========================================
-    // ==========================================
-    // 3. EXCLUIR (DELETE)
-    // ==========================================
     public boolean excluir(int id) {
         String sql = "DELETE FROM Produto WHERE id = ?";
 
@@ -82,19 +67,14 @@ public class ProdutoDAO {
             stmt.setInt(1, id);
             int linhasAfetadas = stmt.executeUpdate();
 
-            // Retorna true se realmente apagou alguma linha
             return linhasAfetadas > 0;
 
         } catch (java.sql.SQLException e) {
-            // Se cair aqui, provavelmente é o banco bloqueando por causa de histórico em Vendas/Compras
             System.err.println("Erro ao excluir produto. Ele pode estar vinculado a alguma transação: " + e.getMessage());
             return false;
         }
     }
 
-    // ==========================================
-    // 4. PESQUISAR (READ)
-    // ==========================================
     public Produto pesquisar(int id) {
         String sql = "SELECT * FROM Produto WHERE id = ?";
 
@@ -113,7 +93,6 @@ public class ProdutoDAO {
                 p.setValor_ultima_compra(rs.getDouble("valor_ultima_compra"));
                 p.setValor_ultima_venda(rs.getDouble("valor_ultima_venda"));
 
-                // Preenche a categoria (basicamente, setamos apenas o ID aqui para ser prático)
                 Categoria c = new Categoria();
                 c.setId(rs.getInt("id_categoria"));
                 p.setCategoria(c);
@@ -128,9 +107,6 @@ public class ProdutoDAO {
         return null;
     }
 
-    // ==========================================
-    // MÉTODO EXTRA: LISTAR TODOS
-    // ==========================================
     public List<Produto> listarTodos() {
         List<Produto> listaProdutos = new ArrayList<>();
         String sql = "SELECT * FROM Produto";
